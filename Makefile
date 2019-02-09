@@ -1,3 +1,15 @@
+# Lua interpreter for Linux.
+# Version 1.0
+#
+# History:
+#     1993 - https://www.lua.org/versions.html
+#            Lua 1.0 was never released publicly, 
+# but it was up and running on 28 Jul 1993, and most probably a 
+# couple of months before that. 
+#     2019 - Adapted by Fred Nora.
+#
+
+
 OBJS= hash.o inout.o lex_yy.o opcode.o table.o y_tab.o lua.o iolib.o mathlib.o strlib.o
 
 CFLAGS= -O2 
