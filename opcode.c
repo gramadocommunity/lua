@@ -1,8 +1,9 @@
 /*
-** opcode.c
-** TecCGraf - PUC-Rio
-** 26 Apr 93
-*/
+ ** opcode.c
+ ** TecCGraf - PUC-Rio
+ ** 26 Apr 93
+ */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,11 +12,13 @@
 #include "floatingpoint.h"
 #endif
 
+
 #include "opcode.h"
 #include "hash.h"
 #include "inout.h"
 #include "table.h"
 #include "lua.h"
+
 
 #define tonumber(o) ((tag(o) != T_NUMBER) && (lua_tonumber(o) != 0))
 #define tostring(o) ((tag(o) != T_STRING) && (lua_tostring(o) != 0))
@@ -23,14 +26,16 @@
 #ifndef MAXSTACK
 #define MAXSTACK 256
 #endif
+
 static Object stack[MAXSTACK] = {{T_MARK, {NULL}}};
 static Object *top=stack+1, *base=stack+1;
 
 
 /*
-** Concatenate two given string, creating a mark space at the beginning.
-** Return the new string pointer.
-*/
+ ** Concatenate two given string, creating a mark space at the beginning.
+ ** Return the new string pointer.
+ */
+
 static char *lua_strconc (char *l, char *r)
 {
  char *s = calloc (strlen(l)+strlen(r)+2, sizeof(char));
@@ -42,6 +47,7 @@ static char *lua_strconc (char *l, char *r)
  *s++ = 0; 			/* create mark space */
  return strcat(strcpy(s,l),r);
 }
+
 
 /*
 ** Duplicate a string,  creating a mark space at the beginning.
@@ -133,14 +139,16 @@ static int lua_tostring (Object *obj)
 
 
 /*
-** Execute the given opcode. Return 0 in success or 1 on error.
-*/
-int lua_execute (Byte *pc)
-{
- while (1)
- {
-  switch ((OpCode)*pc++)
-  {
+ ********************************
+ * lua_execute:
+ **     Execute the given opcode. Return 0 in success or 1 on error. */
+
+int lua_execute (Byte *pc){
+	
+    while (1)
+    {
+        switch ((OpCode)*pc++){
+				
    case NOP: break;
    
    case PUSHNIL: tag(top++) = T_NIL; break;
@@ -569,33 +577,37 @@ int lua_dofile (char *filename)
  return 0;
 }
 
+
 /*
-** Generate opcode stored on string and execute global statement. Return 0 on
-** success or 1 on error.
-*/
-int lua_dostring (char *string)
-{
- if (lua_openstring (string)) return 1;
- if (lua_parse ()) return 1;
- return 0;
+ ** Generate opcode stored on string and execute global statement. Return 0 on
+ ** success or 1 on error. */
+
+int lua_dostring (char *string){
+	
+    if (lua_openstring (string)) return 1;
+    if (lua_parse ()) return 1;
+    return 0;
 }
 
 /*
-** Execute the given function. Return 0 on success or 1 on error.
-*/
-int lua_call (char *functionname, int nparam)
-{
- static Byte startcode[] = {CALLFUNC, HALT};
- int i; 
- Object func = s_object(lua_findsymbol(functionname));
- if (tag(&func) != T_FUNCTION) return 1;
- for (i=1; i<=nparam; i++)
-  *(top-i+2) = *(top-i);
- top += 2;
- tag(top-nparam-1) = T_MARK;
- *(top-nparam-2) = func;
- return (lua_execute (startcode));
+ ** Execute the given function. Return 0 on success or 1 on error. */
+
+int lua_call (char *functionname, int nparam){
+	
+    static Byte startcode[] = {CALLFUNC, HALT};
+    
+	int i; 
+    Object func = s_object(lua_findsymbol(functionname));
+    if (tag(&func) != T_FUNCTION) return 1;
+    for (i=1; i<=nparam; i++)
+        *(top-i+2) = *(top-i);
+    top += 2;
+    tag(top-nparam-1) = T_MARK;
+    *(top-nparam-2) = func;
+    return (lua_execute (startcode));
 }
+
+
 
 /*
 ** Get a parameter, returning the object handle or NULL on error.
@@ -847,20 +859,23 @@ int lua_storeindexed (lua_Object object, float index)
 
 
 /*
-** Given an object handle, return if it is nil.
-*/
-int lua_isnil (Object *object)
-{
- return (object != NULL && tag(object) == T_NIL);
+ ***********************
+ ** Given an object handle, return if it is nil. */
+
+int lua_isnil (Object *object){
+	
+    return (object != NULL && tag(object) == T_NIL);
 }
 
+
 /*
-** Given an object handle, return if it is a number one.
-*/
-int lua_isnumber (Object *object)
-{
- return (object != NULL && tag(object) == T_NUMBER);
+ ** Given an object handle, return if it is a number one.
+ */
+int lua_isnumber (Object *object){
+	
+    return (object != NULL && tag(object) == T_NUMBER);
 }
+
 
 /*
 ** Given an object handle, return if it is a string one.
@@ -912,22 +927,26 @@ void lua_obj2number (void)
  lua_pushobject (lua_convtonumber(o));
 }
 
+
 /*
-** Internal function: print object values
-*/
-void lua_print (void)
-{
- int i=1;
- void *obj;
- while ((obj=lua_getparam (i++)) != NULL)
- {
-  if      (lua_isnumber(obj))    printf("%g\n",lua_getnumber (obj));
-  else if (lua_isstring(obj))    printf("%s\n",lua_getstring (obj));
-  else if (lua_iscfunction(obj)) printf("cfunction: %p\n",lua_getcfunction (obj));
-  else if (lua_isuserdata(obj))  printf("userdata: %p\n",lua_getuserdata (obj));
-  else if (lua_istable(obj))     printf("table: %p\n",obj);
-  else if (lua_isnil(obj))       printf("nil\n");
-  else			         printf("invalid value to print\n");
- }
+ ************************
+ * lua_print:
+ **     Internal function: print object values */
+
+void lua_print (void){
+	
+    int i=1;
+    void *obj;
+    
+	while ((obj=lua_getparam (i++)) != NULL)
+    {
+        if (lua_isnumber(obj))    printf("%g\n",lua_getnumber (obj));
+        else if (lua_isstring(obj))    printf("%s\n",lua_getstring (obj));
+        else if (lua_iscfunction(obj)) printf("cfunction: %p\n",lua_getcfunction (obj));
+        else if (lua_isuserdata(obj))  printf("userdata: %p\n",lua_getuserdata (obj));
+        else if (lua_istable(obj))     printf("table: %p\n",obj);
+        else if (lua_isnil(obj))       printf("nil\n");
+        else printf("invalid value to print\n");
+    }
 }
 

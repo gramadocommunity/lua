@@ -1,37 +1,56 @@
 /*
-** mathlib.c
-** Mathematica library to LUA
-**
-** Waldemar Celes Filho
-** TeCGraf - PUC-Rio
-** 19 May 93
-*/
+ ** mathlib.c
+ ** Mathematica library to LUA
+ **
+ ** Waldemar Celes Filho
+ ** TeCGraf - PUC-Rio
+ ** 19 May 93
+ *
+ * History:
+ *     1993 - PUC-Rio
+ *     2019 -  Fred Nora
+ */
+
 
 #include <stdio.h>		/* NULL */
 #include <math.h>
 
 #include "lua.h"
 
-static void math_abs (void)
-{
- double d;
- lua_Object o = lua_getparam (1);
- if (o == NULL)
- { lua_error ("too few arguments to function `abs'"); return; }
- if (!lua_isnumber(o))
- { lua_error ("incorrect arguments to function `abs'"); return; }
- d = lua_getnumber(o);
- if (d < 0) d = -d;
- lua_pushnumber (d);
+
+static void math_abs (void){
+	
+    double d;
+    
+	lua_Object o = lua_getparam (1);
+    
+	if (o == NULL)
+    { 
+	    lua_error ("too few arguments to function `abs'"); 
+		return; 
+    }
+	
+    if (!lua_isnumber(o))
+    { 
+        lua_error ("incorrect arguments to function `abs'"); 
+		return; 
+    }
+    
+	d = lua_getnumber(o);
+    
+	if (d < 0) d = -d;
+    lua_pushnumber (d);
 }
 
 
-static void math_sin (void)
-{
- double d;
- lua_Object o = lua_getparam (1);
- if (o == NULL)
- { lua_error ("too few arguments to function `sin'"); return; }
+static void math_sin (void){
+	
+    double d;
+    
+	lua_Object o = lua_getparam (1);
+    
+	if (o == NULL)
+    { lua_error ("too few arguments to function `sin'"); return; }
  if (!lua_isnumber(o))
  { lua_error ("incorrect arguments to function `sin'"); return; }
  d = lua_getnumber(o);
@@ -145,29 +164,49 @@ static void math_mod (void)
 }
 
 
-static void math_sqrt (void)
-{
- double d;
- lua_Object o = lua_getparam (1);
- if (o == NULL)
- { lua_error ("too few arguments to function `sqrt'"); return; }
- if (!lua_isnumber(o))
- { lua_error ("incorrect arguments to function `sqrt'"); return; }
- d = lua_getnumber(o);
- lua_pushnumber (sqrt(d));
+static void math_sqrt (void){
+	
+    double d;
+    
+	lua_Object o = lua_getparam (1);
+    
+	if (o == NULL)
+    { 
+		lua_error ("too few arguments to function `sqrt'"); 
+		return; 
+    }
+	
+    if (!lua_isnumber(o))
+    { 
+		lua_error ("incorrect arguments to function `sqrt'"); 
+		return; 
+    }
+	
+    d = lua_getnumber(o);
+    
+	lua_pushnumber ( sqrt(d) );
 }
 
-static void math_pow (void)
-{
- double d1, d2;
- lua_Object o1 = lua_getparam (1);
- lua_Object o2 = lua_getparam (2);
- if (!lua_isnumber(o1) || !lua_isnumber(o2))
- { lua_error ("incorrect arguments to function `pow'"); return; }
- d1 = lua_getnumber(o1);
- d2 = lua_getnumber(o2);
- lua_pushnumber (pow(d1,d2));
+
+static void math_pow (void){
+	
+    double d1, d2;
+    
+	lua_Object o1 = lua_getparam (1);
+    lua_Object o2 = lua_getparam (2);
+    
+	if (!lua_isnumber(o1) || !lua_isnumber(o2))
+    { 
+		lua_error ("incorrect arguments to function `pow'"); 
+		return; 
+    }
+    
+	d1 = lua_getnumber(o1);
+    d2 = lua_getnumber(o2);
+	
+    lua_pushnumber ( pow(d1,d2) );
 }
+
 
 static void math_min (void)
 {
@@ -213,22 +252,24 @@ static void math_max (void)
 
 
 /*
-** Open math library
-*/
-void mathlib_open (void)
-{
- lua_register ("abs",   math_abs);
- lua_register ("sin",   math_sin);
- lua_register ("cos",   math_cos);
- lua_register ("tan",   math_tan);
- lua_register ("asin",  math_asin);
- lua_register ("acos",  math_acos);
- lua_register ("atan",  math_atan);
- lua_register ("ceil",  math_ceil);
- lua_register ("floor", math_floor);
- lua_register ("mod",   math_mod);
- lua_register ("sqrt",  math_sqrt);
- lua_register ("pow",   math_pow);
- lua_register ("min",   math_min);
- lua_register ("max",   math_max);
+ ** Open math library
+ */
+
+void mathlib_open (void){
+	
+    lua_register ("abs",   math_abs);
+    lua_register ("sin",   math_sin);
+    lua_register ("cos",   math_cos);
+    lua_register ("tan",   math_tan);
+    lua_register ("asin",  math_asin);
+    lua_register ("acos",  math_acos);
+    lua_register ("atan",  math_atan);
+    lua_register ("ceil",  math_ceil);
+    lua_register ("floor", math_floor);
+    lua_register ("mod",   math_mod);
+    lua_register ("sqrt",  math_sqrt);
+    lua_register ("pow",   math_pow);
+    lua_register ("min",   math_min);
+    lua_register ("max",   math_max);
 }
+
