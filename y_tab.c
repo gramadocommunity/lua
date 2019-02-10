@@ -1,3 +1,9 @@
+/*
+ * y_tab.c
+ *
+ */
+
+
 # line 2 "lua.stx"
 
 #include <stdio.h>
@@ -17,6 +23,8 @@
 #ifndef MAXCODE
 #define MAXCODE 1024
 #endif
+
+
 static long   buffer[MAXCODE];
 static Byte  *code = (Byte *)buffer;
 static long   mainbuffer[MAXCODE];
@@ -33,117 +41,134 @@ static Byte    nlocalvar=0;	     /* number of local variables */
 static int     ntemp;		     /* number of temporary var into stack */
 static int     err;		     /* flag to indicate error */
 
+
 /* Internal functions */
 #define align(n)  align_n(sizeof(n))
 
-static void code_byte (Byte c)
-{
- if (pc-basepc>MAXCODE-1)
- {
-  lua_error ("code buffer overflow");
-  err = 1;
- }
- *pc++ = c;
+
+static void code_byte (Byte c){
+
+    if (pc-basepc>MAXCODE-1)
+    {
+        lua_error ("code buffer overflow");
+        err = 1;
+    }
+
+    *pc++ = c;
 }
 
-static void code_word (Word n)
-{
- if (pc-basepc>MAXCODE-sizeof(Word))
- {
-  lua_error ("code buffer overflow");
-  err = 1;
- }
- *((Word *)pc) = n;
- pc += sizeof(Word);
+
+static void code_word (Word n){
+
+    if (pc-basepc>MAXCODE-sizeof(Word))
+    {
+        lua_error ("code buffer overflow");
+        err = 1;
+    }
+  
+    *((Word *)pc) = n;
+    pc += sizeof(Word);
 }
 
-static void code_float (float n)
-{
- if (pc-basepc>MAXCODE-sizeof(float))
- {
-  lua_error ("code buffer overflow");
-  err = 1;
- }
- *((float *)pc) = n;
- pc += sizeof(float);
+
+static void code_float (float n){
+  
+    if (pc-basepc>MAXCODE-sizeof(float))
+    {
+        lua_error ("code buffer overflow");
+        err = 1;
+    }
+  
+    *((float *)pc) = n;
+    pc += sizeof(float);
 }
 
-static void incr_ntemp (void)
-{
- if (ntemp+nlocalvar+MAXVAR+1 < STACKGAP)
-  ntemp++;
- else
- {
-  lua_error ("stack overflow");
-  err = 1;
- }
+
+static void incr_ntemp (void){
+
+    if (ntemp+nlocalvar+MAXVAR+1 < STACKGAP)
+        ntemp++;
+        else 
+        {
+            lua_error ("stack overflow");
+            err = 1;
+        }
 }
 
-static void incr_nlocalvar (void)
-{
- if (ntemp+nlocalvar+MAXVAR+1 < STACKGAP)
-  nlocalvar++;
- else
- {
-  lua_error ("too many local variables or expression too complicate");
-  err = 1;
- }
+
+static void incr_nlocalvar (void){
+  
+    if (ntemp+nlocalvar+MAXVAR+1 < STACKGAP)
+        nlocalvar++;
+        else
+        {
+            lua_error ("too many local variables or expression too complicate");
+            err = 1;
+        }
 }
 
-static void incr_nvarbuffer (void)
-{
- if (nvarbuffer < MAXVAR-1)
-  nvarbuffer++;
- else
- {
-  lua_error ("variable buffer overflow");
-  err = 1;
- }
+
+static void incr_nvarbuffer (void){
+  
+    if (nvarbuffer < MAXVAR-1)
+        nvarbuffer++;
+        else
+        {
+            lua_error ("variable buffer overflow");
+            err = 1;
+        }
 }
 
-static void align_n (unsigned size)
-{
- if (size > ALIGNMENT) size = ALIGNMENT;
- while (((pc+1-code)%size) != 0)	/* +1 to include BYTECODE */
-  code_byte (NOP);
+
+static void align_n (unsigned size){
+  
+    if (size > ALIGNMENT) size = ALIGNMENT;
+    while (((pc+1-code)%size) != 0)	/* +1 to include BYTECODE */
+        code_byte (NOP);
 }
 
-static void code_number (float f)
-{ int i = f;
-  if (f == i)  /* f has an integer value */
-  {
-   if (i <= 2) code_byte(PUSH0 + i);
-   else if (i <= 255)
-   {
-    code_byte(PUSHBYTE);
-    code_byte(i);
-   }
-   else
-   {
-    align(Word);
-    code_byte(PUSHWORD);
-    code_word(i);
-   }
-  }
-  else
-  {
-   align(float);
-   code_byte(PUSHFLOAT);
-   code_float(f);
-  }
-  incr_ntemp();
+
+static void code_number (float f){ 
+  
+  int i = f;
+  
+  /* f has an integer value */
+  
+    if (f == i)  
+    {
+        if (i <= 2) code_byte(PUSH0 + i);
+            else if (i <= 255)
+                 {
+                     code_byte(PUSHBYTE);
+                     code_byte(i);
+                 }else{
+                      align(Word);
+                      code_byte(PUSHWORD);
+                      code_word(i);
+                 }    
+      
+    } else {
+    
+       align(float);
+       code_byte(PUSHFLOAT);
+       code_float(f);
+    }
+
+    incr_ntemp();
 }
 
 
 # line 140 "lua.stx"
 typedef union  
 {
- int   vInt;
- long  vLong;
- float vFloat;
- Word  vWord;
- Byte *pByte;
-} YYSTYPE;
+    int vInt;
+    long vLong;
+    float vFloat;
+    Word vWord;
+    Byte *pByte;
+  
+}YYSTYPE;
+
 # define NIL 257
 # define IF 258
 # define THEN 259
@@ -169,13 +194,17 @@ typedef union
 # define GE 279
 # define CONC 280
 # define UNARY 281
+
 #define yyclearin yychar = -1
 #define yyerrok yyerrflag = 0
+
 extern int yychar;
 extern int yyerrflag;
+
 #ifndef YYMAXDEPTH
 #define YYMAXDEPTH 150
 #endif
+
 YYSTYPE yylval, yyval;
 # define YYERRCODE 256
 
@@ -183,61 +212,68 @@ YYSTYPE yylval, yyval;
 
 
 /*
-** Search a local name and if find return its index. If do not find return -1
-*/
-static int lua_localname (Word n)
-{
- int i;
- for (i=nlocalvar-1; i >= 0; i--)
-  if (n == localvar[i]) return i;	/* local var */
- return -1;		        /* global var */
+ ** Search a local name and if find return its index. If do not find return -1
+ */
+
+static int lua_localname (Word n){
+  
+    int i;
+
+    for (i=nlocalvar-1; i >= 0; i--)
+        if (n == localvar[i]) return i;	/* local var */
+    return -1;		        /* global var */
 }
 
 /*
-** Push a variable given a number. If number is positive, push global variable
-** indexed by (number -1). If negative, push local indexed by ABS(number)-1.
-** Otherwise, if zero, push indexed variable (record).
-*/
-static void lua_pushvar (long number)
-{ 
- if (number > 0)	/* global var */
- {
-  align(Word);
-  code_byte(PUSHGLOBAL);
-  code_word(number-1);
-  incr_ntemp();
- }
- else if (number < 0)	/* local var */
- {
-  number = (-number) - 1;
-  if (number < 10) code_byte(PUSHLOCAL0 + number);
-  else
-  {
-   code_byte(PUSHLOCAL);
-   code_byte(number);
-  }
-  incr_ntemp();
- }
- else
- {
-  code_byte(PUSHINDEXED);
-  ntemp--;
- }
+ ** Push a variable given a number. If number is positive, push global variable
+ ** indexed by (number -1). If negative, push local indexed by ABS(number)-1.
+ ** Otherwise, if zero, push indexed variable (record).
+ */
+
+static void lua_pushvar (long number){
+  
+    /* global var */
+  
+    if (number > 0)	
+    {
+        align(Word);
+        code_byte(PUSHGLOBAL);
+        code_word(number-1);
+        incr_ntemp();
+    }else if (number < 0)	/* local var */
+          {
+              number = (-number) - 1;
+              
+              if (number < 10) code_byte(PUSHLOCAL0 + number);
+              else
+              {
+                  code_byte(PUSHLOCAL);
+                  code_byte(number);
+              }
+              
+              incr_ntemp();
+          }else{
+              code_byte(PUSHINDEXED);
+              ntemp--;
+          }
 }
 
-static void lua_codeadjust (int n)
-{
- code_byte(ADJUST);
- code_byte(n + nlocalvar);
+static void lua_codeadjust (int n){
+  
+    code_byte(ADJUST);
+    code_byte(n + nlocalvar);
 }
 
-static void lua_codestore (int i)
-{
- if (varbuffer[i] > 0)		/* global var */
- {
-  align(Word);
-  code_byte(STOREGLOBAL);
-  code_word(varbuffer[i]-1);
+
+static void lua_codestore (int i){
+  
+    /* global var */
+  
+    if (varbuffer[i] > 0)		
+    {
+        align(Word);
+        code_byte(STOREGLOBAL);
+        code_word(varbuffer[i]-1);
  }
  else if (varbuffer[i] < 0)      /* local var */
  {
@@ -267,82 +303,121 @@ static void lua_codestore (int i)
  }
 }
 
-void yyerror (char *s)
-{
- static char msg[256];
- sprintf (msg,"%s near \"%s\" at line %d in file \"%s\"",
-          s, lua_lasttext (), lua_linenumber, lua_filename());
- lua_error (msg);
- err = 1;
+
+
+/*
+ ********************
+ * yyerror
+ */
+
+void yyerror (char *s){
+  
+    static char msg[256];
+    
+    sprintf ( msg, "%s near \"%s\" at line %d in file \"%s\"",
+        s, lua_lasttext (), lua_linenumber, lua_filename() );
+  
+    lua_error (msg);
+    err = 1;
 }
 
-int yywrap (void)
-{
- return 1;
+
+int yywrap (void){
+  
+    return 1;
 }
 
 
 /*
-** Parse LUA code and execute global statement.
-** Return 0 on success or 1 on error.
-*/
-int lua_parse (void)
-{
- Byte *initcode = maincode;
- err = 0;
- if (yyparse () || (err==1)) return 1;
- *maincode++ = HALT;
- if (lua_execute (initcode)) return 1;
- maincode = initcode;
- return 0;
+ ***********************************************************
+ ** Parse LUA code and execute global statement.
+ ** Return 0 on success or 1 on error.
+ */
+
+int lua_parse (void){
+  
+    Byte *initcode = maincode;
+    err = 0;
+    
+    if (yyparse () || (err==1)) return 1;
+    *maincode++ = HALT;
+    if (lua_execute (initcode)) return 1;
+    maincode = initcode;
+    return 0;
 }
+
 
 
 #if 0
 
-static void PrintCode (void)
-{
- Byte *p = code;
- printf ("\n\nCODE\n");
- while (p != pc)
- {
-  switch ((OpCode)*p)
-  {
-   case NOP:		printf ("%d    NOP\n", (p++)-code); break;
-   case PUSHNIL:	printf ("%d    PUSHNIL\n", (p++)-code); break;
-   case PUSH0: case PUSH1: case PUSH2:
-    			printf ("%d    PUSH%c\n", p-code, *p-PUSH0+'0');
-    			p++;
-   			break;
-   case PUSHBYTE:
-    			printf ("%d    PUSHBYTE   %d\n", p-code, *(++p));
-    			p++;
-   			break;
-   case PUSHWORD:
-    			printf ("%d    PUSHWORD   %d\n", p-code, *((Word *)(p+1)));
-    			p += 1 + sizeof(Word);
-   			break;
-   case PUSHFLOAT:
-    			printf ("%d    PUSHFLOAT  %f\n", p-code, *((float *)(p+1)));
-    			p += 1 + sizeof(float);
-   			break;
-   case PUSHSTRING:
-    			printf ("%d    PUSHSTRING   %d\n", p-code, *((Word *)(p+1)));
-    			p += 1 + sizeof(Word);
-   			break;
-   case PUSHLOCAL0: case PUSHLOCAL1: case PUSHLOCAL2: case PUSHLOCAL3:
-   case PUSHLOCAL4: case PUSHLOCAL5: case PUSHLOCAL6: case PUSHLOCAL7:
-   case PUSHLOCAL8: case PUSHLOCAL9:
-    			printf ("%d    PUSHLOCAL%c\n", p-code, *p-PUSHLOCAL0+'0');
-    			p++;
-   			break;
-   case PUSHLOCAL:	printf ("%d    PUSHLOCAL   %d\n", p-code, *(++p));
-    			p++;
-   			break;
-   case PUSHGLOBAL:
-    			printf ("%d    PUSHGLOBAL   %d\n", p-code, *((Word *)(p+1)));
-    			p += 1 + sizeof(Word);
-   			break;
+static void PrintCode (void){
+  
+    Byte *p = code;
+    
+    printf ("\n\nCODE\n");
+    
+    while (p != pc)
+    {
+        switch ((OpCode)*p)
+        {
+            case NOP:		
+                printf ("%d    NOP\n", (p++)-code); 
+                break;
+
+            case PUSHNIL:	
+                printf ("%d    PUSHNIL\n", (p++)-code ); 
+                break;
+
+            case PUSH0: 
+            case PUSH1: 
+            case PUSH2:
+                printf ("%d    PUSH%c\n", p-code, *p-PUSH0+'0');
+                p++;
+                break;
+
+            case PUSHBYTE:
+                printf ("%d    PUSHBYTE   %d\n", p-code, *(++p));
+                p++;
+                break;
+
+           case PUSHWORD:
+               printf ("%d    PUSHWORD   %d\n", p-code, *((Word *)(p+1)));
+               p += 1 + sizeof(Word);
+               break;
+
+           case PUSHFLOAT:
+               printf ("%d    PUSHFLOAT  %f\n", p-code, *((float *)(p+1)));
+               p += 1 + sizeof(float);
+               break;
+
+           case PUSHSTRING:
+               printf ("%d    PUSHSTRING   %d\n", p-code, *((Word *)(p+1)));
+               p += 1 + sizeof(Word);
+               break;
+
+            case PUSHLOCAL0: 
+            case PUSHLOCAL1: 
+            case PUSHLOCAL2: 
+            case PUSHLOCAL3:
+            case PUSHLOCAL4: 
+            case PUSHLOCAL5: 
+            case PUSHLOCAL6: 
+            case PUSHLOCAL7:
+            case PUSHLOCAL8: 
+            case PUSHLOCAL9:
+                printf ("%d    PUSHLOCAL%c\n", p-code, *p-PUSHLOCAL0+'0');
+                p++;
+                break;
+
+            case PUSHLOCAL:	printf ("%d    PUSHLOCAL   %d\n", p-code, *(++p));
+                p++;
+                break;
+
+            case PUSHGLOBAL:
+                printf ("%d    PUSHGLOBAL   %d\n", p-code, *((Word *)(p+1)));
+                p += 1 + sizeof(Word);
+                break;
+
    case PUSHINDEXED:    printf ("%d    PUSHINDEXED\n", (p++)-code); break;
    case PUSHMARK:       printf ("%d    PUSHMARK\n", (p++)-code); break;
    case PUSHOBJECT:     printf ("%d    PUSHOBJECT\n", (p++)-code); break;
@@ -608,15 +683,23 @@ int yydef[]={
     77,     0,     0,    78,    89,    88,    91,     0,    66,     8,
     15,    24,     0,    82,     0,     0,    17,    13,    32,    84,
     90,    31,    26,    32,    23,    25 };
-typedef struct { char *t_name; int t_val; } yytoktype;
+
+
+typedef struct { 
+
+    char *t_name; 
+    int t_val; 
+
+} yytoktype;
+
 #ifndef YYDEBUG
 #	define YYDEBUG	0	/* don't allow debugging */
 #endif
 
 #if YYDEBUG
 
-yytoktype yytoks[] =
-{
+yytoktype yytoks[] = {
+  
 	"NIL",	257,
 	"IF",	258,
 	"THEN",	259,
@@ -653,8 +736,9 @@ yytoktype yytoks[] =
 	"-unknown-",	-1	/* ends search */
 };
 
-char * yyreds[] =
-{
+
+char * yyreds[] = {
+  
 	"-no such reduction-",
 	"functionlist : /* empty */",
 	"functionlist : functionlist",
@@ -761,17 +845,23 @@ char * yyreds[] =
 	"init : '=' expr1",
 	"setdebug : DEBUG",
 };
+
 #endif /* YYDEBUG */
+
+
 #line 1 "/usr/lib/yaccpar"
 /*	@(#)yaccpar 1.10 89/04/04 SMI; from S5R3 1.10	*/
 
-/*
-** Skeleton parser driver for yacc output
-*/
 
 /*
-** yacc user known macros and defines
-*/
+ ** Skeleton parser driver for yacc output
+ */
+
+
+/*
+ ** yacc user known macros and defines
+ */
+
 #define YYERROR		goto yyerrlab
 #define YYACCEPT	{ free(yys); free(yyv); return(0); }
 #define YYABORT		{ free(yys); free(yyv); return(1); }
@@ -792,19 +882,22 @@ char * yyreds[] =
 #	define YYDEBUG	1	/* make debugging available */
 #endif
 
+
 /*
-** user known globals
-*/
+ ** user known globals
+ */
 int yydebug;			/* set to 1 to get debugging */
 
 /*
-** driver internal defines
-*/
+ ** driver internal defines
+ */
 #define YYFLAG		(-1000)
 
+
 /*
-** static variables used by the parser
-*/
+ ** static variables used by the parser
+ */
+
 static YYSTYPE *yyv;			/* value stack */
 static int *yys;			/* state stack */
 
@@ -821,44 +914,53 @@ int yychar;			/* current input token number */
 
 
 /*
-** yyparse - return 0 if worked, 1 if syntax error not recovered from
-*/
-int
-yyparse()
-{
-	register YYSTYPE *yypvt;	/* top of value stack for $vars */
-	unsigned yymaxdepth = YYMAXDEPTH;
+ *****************************
+ ** yyparse:
+ *      return 0 if worked, 1 if syntax error not recovered from
+ */
 
-	/*
-	** Initialize externals - yyparse may be called more than once
-	*/
-	yyv = (YYSTYPE*)malloc(yymaxdepth*sizeof(YYSTYPE));
-	yys = (int*)malloc(yymaxdepth*sizeof(int));
-	if (!yyv || !yys)
-	{
-		yyerror( "out of memory" );
-		return(1);
-	}
-	yypv = &yyv[-1];
-	yyps = &yys[-1];
-	yystate = 0;
-	yytmp = 0;
-	yynerrs = 0;
-	yyerrflag = 0;
-	yychar = -1;
+int yyparse (){
+  
+    /* top of value stack for $vars */
+    
+    register YYSTYPE *yypvt;	
+	  
+    unsigned yymaxdepth = YYMAXDEPTH;
 
-	goto yystack;
-	{
-		register YYSTYPE *yy_pv;	/* top of value stack */
-		register int *yy_ps;		/* top of state stack */
-		register int yy_state;		/* current state */
-		register int  yy_n;		/* internal state number info */
+    /*
+	   ** Initialize externals - yyparse may be called more than once */
+  
+    yyv = (YYSTYPE *) malloc (yymaxdepth*sizeof(YYSTYPE));
+	  yys = (int *) malloc (yymaxdepth*sizeof(int));
+	  
+    if (!yyv || !yys)
+	  {
+		    yyerror ( "out of memory" );
+		    return (1);
+	  }
+  
+  
+    yypv = &yyv[-1];
+    yyps = &yys[-1];
+  
+    yystate = 0;
+    yytmp = 0;
+    yynerrs = 0;
+    yyerrflag = 0;
+    yychar = -1;
+
+    goto yystack;
+    {
+        register YYSTYPE *yy_pv;	/* top of value stack */
+        register int *yy_ps;		/* top of state stack */
+        register int yy_state;		/* current state */
+        register int  yy_n;		/* internal state number info */
 
 		/*
 		** get globals into registers.
 		** branch to here only if YYBACKUP was called.
 		*/
-	yynewstate:
+yynewstate:
 		yy_pv = yypv;
 		yy_ps = yyps;
 		yy_state = yystate;
@@ -935,9 +1037,10 @@ yyparse()
 		*++yy_pv = yyval;
 
 		/*
-		** we have a new state - find out what to do
-		*/
-	yy_newstate:
+		 ** we have a new state - find out what to do
+		 */
+      
+yy_newstate:
 		if ( ( yy_n = yypact[ yy_state ] ) <= YYFLAG )
 			goto yydefault;		/* simple state */
 #if YYDEBUG
@@ -982,7 +1085,8 @@ yyparse()
 			goto yy_stack;
 		}
 
-	yydefault:
+      
+yydefault:
 		if ( ( yy_n = yydef[ yy_state ] ) == -2 )
 		{
 #if YYDEBUG
@@ -1196,19 +1300,31 @@ yyparse()
 		yyps = yy_ps;
 		yypv = yy_pv;
 	}
-	/*
-	** code supplied by user is placed in this switch
-	*/
-	switch( yytmp )
-	{
+  
+  
+    /*
+	   ** code supplied by user is placed in this switch
+	   */
+  
+    switch( yytmp )
+	  {
 		
-case 2:
-# line 179 "lua.stx"
-{pc=basepc=maincode; nlocalvar=0;} break;
-case 3:
-# line 179 "lua.stx"
-{maincode=pc;} break;
-case 6:
+        case 2:
+        # line 179 "lua.stx"
+        {
+            pc = basepc = maincode; 
+            nlocalvar=0;
+        }
+            break;
+        
+       case 3:
+       # line 179 "lua.stx"
+       {
+            maincode=pc;
+       }
+           break;
+        
+       case 6:
 # line 184 "lua.stx"
 {pc=basepc=code; nlocalvar=0;} break;
 case 7:
@@ -1634,6 +1750,9 @@ case 102:
 case 104:
 # line 528 "lua.stx"
 {lua_debug = yypvt[-0].vInt;} break;
-	}
-	goto yystack;		/* reset registers in driver code */
+    
+    }
+    
+    goto yystack;		/* reset registers in driver code */
 }
+

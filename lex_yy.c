@@ -1,5 +1,9 @@
+/*
+ * lex_yy.c
+ *
+ */
 
-//# include "stdio.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -20,6 +24,8 @@
 # define yymore() (yymorfg=1)
 # define ECHO fprintf(stdout, "%s",yytext)
 # define REJECT { nstr = yyreject(); goto yyfussy;}
+
+
 int yyleng; extern char yytext[];
 int yymorfg;
 extern char *yysptr, yysbuf[];
@@ -48,140 +54,194 @@ extern struct yysvf yysvec[], *yybgin;
 static Input input;
 static Unput unput;
 
+
 void lua_setinput (Input fn)
 {
- input = fn;
+    input = fn;
 }
+
 
 void lua_setunput (Unput fn)
 {
- unput = fn;
+    unput = fn;
 }
+
 
 char *lua_lasttext (void)
 {
- return yytext;
+    return yytext;
 }
 
+
 # define YYNEWLINE 10
-yylex(){
-int nstr; extern int yyprevious;
-while((nstr = yylook()) >= 0)
-yyfussy: switch(nstr){
-case 0:
-if(yywrap()) return(0); break;
-case 1:
+
+yylex (){
+	
+    int nstr; 
+	extern int yyprevious;
+	
+    while((nstr = yylook()) >= 0)
+    yyfussy: switch(nstr){
+    
+		case 0:
+            if(yywrap()) return(0); 
+			break;
+        
+		case 1:
 				;
-break;
-case 2:
-			{yylval.vInt = 1; return DEBUG;}
-break;
-case 3:
-			{yylval.vInt = 0; return DEBUG;}
-break;
-case 4:
-				lua_linenumber++;
-break;
-case 5:
+            break;
+        
+		case 2:
+	    {
+			yylval.vInt = 1; 
+			return DEBUG;
+		}
+		    break;
+
+		case 3:
+		{ 
+			yylval.vInt = 0; 
+			return DEBUG;
+		}
+            break;
+
+		case 4:
+		    lua_linenumber++;
+            break;
+
+		case 5:
 				;
-break;
-case 6:
-				return LOCAL;
-break;
-case 7:
-				return IF;
-break;
-case 8:
-				return THEN;
-break;
-case 9:
-				return ELSE;
-break;
-case 10:
-			return ELSEIF;
-break;
-case 11:
+            break;
+
+		case 6:
+		    return LOCAL;
+            break;
+
+		case 7:
+		    return IF;
+            break;
+
+		case 8:
+		    return THEN;
+            break;
+
+		case 9:
+		    return ELSE;
+            break;
+
+		case 10:
+		    return ELSEIF;
+            break;
+
+		case 11:
 				return WHILE;
-break;
-case 12:
-				return DO;
-break;
-case 13:
-			return REPEAT;
-break;
-case 14:
-				return UNTIL;
-break;
-case 15:
-			{
-                                         yylval.vWord = lua_nfile-1;
-                                         return FUNCTION;
-					}
-break;
-case 16:
-				return END;
-break;
-case 17:
-				return RETURN;
-break;
-case 18:
-				return LOCAL;
-break;
-case 19:
-				return NIL;
-break;
-case 20:
-				return AND;
-break;
-case 21:
-				return OR;
-break;
-case 22:
-				return NOT;
-break;
-case 23:
-				return NE;
-break;
-case 24:
-				return LE;
-break;
-case 25:
-				return GE;
-break;
-case 26:
-				return CONC;
-break;
-case 27:
-			case 28:
-		      {
-				       yylval.vWord = lua_findenclosedconstant (yytext);
-				       return STRING;
-				      }
-break;
-case 29:
-case 30:
-case 31:
-case 32:
-{
-				        yylval.vFloat = atof(yytext);
-				        return NUMBER;
-				       }
-break;
-case 33:
- 	       {
-					yylval.vWord = lua_findsymbol (yytext);
-					return NAME;
-				       }
-break;
-case 34:
-				return  *yytext;
-break;
-case -1:
-break;
-default:
-fprintf(stdout,"bad switch yylook %d",nstr);
-} return(0); }
+                break;
+
+		case 12:
+		    return DO;
+            break;
+
+		case 13:
+		    return REPEAT;
+            break;
+
+		case 14:
+		    return UNTIL;
+            break;
+
+		case 15:
+		{
+            yylval.vWord = lua_nfile-1;
+            return FUNCTION;
+		}
+            break;
+
+		case 16:
+		    return END;
+            break;
+
+		case 17:
+		    return RETURN;
+            break;
+
+		case 18:
+		    return LOCAL;
+            break;
+
+		case 19:
+		    return NIL;
+            break;
+
+		case 20:
+		    return AND;
+            break;
+
+		case 21:
+		    return OR;
+            break;
+
+		case 22:
+		    return NOT;
+            break;
+        
+		case 23:
+		    return NE;
+            break;
+			
+        case 24:
+			return LE;
+            break;
+        
+		case 25:
+			return GE;
+            break;
+
+		case 26:
+		    return CONC;
+            break;
+
+		case 27:
+		case 28:
+		{
+		    yylval.vWord = lua_findenclosedconstant (yytext);
+			return STRING;
+		}
+            break;
+
+		case 29:
+		case 30:
+        case 31:
+        case 32:
+        {
+		    yylval.vFloat = atof(yytext);
+			return NUMBER;
+		}
+            break;
+
+		case 33:
+ 	    {
+		    yylval.vWord = lua_findsymbol (yytext);
+			return NAME;
+		}
+            break;
+
+		case 34:
+		    return  *yytext;
+            break;
+
+		case -1:
+            break;
+
+		default:
+            fprintf(stdout,"bad switch yylook %d",nstr);
+    } 
+	
+	return (0); 
+}
+
+
 /* end of yylex */
+
 int yyvstop[] = {
 0,
 
@@ -495,8 +555,11 @@ int yyvstop[] = {
 3,
 0,
 0};
+
 # define YYTYPE char
+
 struct yywork { YYTYPE verify, advance; } yycrank[] = {
+	
 0,0,	0,0,	1,3,	0,0,	
 0,0,	0,0,	0,0,	0,0,	
 0,0,	0,0,	1,4,	1,5,	
@@ -604,6 +667,7 @@ struct yywork { YYTYPE verify, advance; } yycrank[] = {
 90,91,	90,91,	90,91,	90,91,	
 90,91,	90,91,	90,91,	90,91,	
 0,0};
+
 struct yysvf yysvec[] = {
 0,	0,	0,
 yycrank+-1,	0,		yyvstop+1,
@@ -737,28 +801,41 @@ char yymatch[] = {
 'A' ,'A' ,'A' ,'A' ,'A' ,'A' ,'A' ,'A' ,
 'A' ,'A' ,'A' ,01  ,01  ,01  ,01  ,01  ,
 0};
+
+
 char yyextra[] = {
-0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,
-0};
+	
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,
+    0
+};
+
 #ifndef lint
 static	char ncform_sccsid[] = "@(#)ncform 1.6 88/02/08 SMI"; /* from S5R2 1.2 */
 #endif
 
 int yylineno =1;
+
 # define YYU(x) x
 # define NLSTATE yyprevious=YYNEWLINE
+
 char yytext[YYLMAX];
+
 struct yysvf *yylstate [YYLMAX], **yylsp, **yyolsp;
+
 char yysbuf[YYLMAX];
 char *yysptr = yysbuf;
 int *yyfnd;
+
 extern struct yysvf *yyestate;
+
 int yyprevious = YYNEWLINE;
-yylook(){
+
+yylook (){
+	
 	register struct yysvf *yystate, **lsp;
 	register struct yywork *yyt;
 	struct yysvf *yyz;
@@ -773,6 +850,7 @@ yylook(){
 	debug = 0;
 # endif
 	yyfirst=1;
+	
 	if (!yymorfg)
 		yylastch = yytext;
 	else {
@@ -906,26 +984,38 @@ yylook(){
 # endif
 		}
 	}
-yyback(p, m)
-	int *p;
+
+
+yyback (p, m)
+    int *p;
 {
-if (p==0) return(0);
-while (*p)
+    if (p==0) return(0);
+    while (*p)
 	{
-	if (*p++ == m)
-		return(1);
+	    if (*p++ == m)
+		    return(1);
 	}
-return(0);
+    
+	return (0);
 }
+
+
 	/* the following are only used in the lex library */
-yyinput(){
+
+yyinput (){
 	return(input());
-	}
+}
+
 yyoutput(c)
-  int c; {
-	output(c);
-	}
+    int c; 
+{
+    output(c);
+}
+
+
 yyunput(c)
-   int c; {
-	unput(c);
-	}
+   int c; 
+{
+    unput(c);
+}
+
