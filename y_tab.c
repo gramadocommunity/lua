@@ -224,6 +224,7 @@ static int lua_localname (Word n){
     return -1;		        /* global var */
 }
 
+
 /*
  ** Push a variable given a number. If number is positive, push global variable
  ** indexed by (number -1). If negative, push local indexed by ABS(number)-1.
@@ -491,6 +492,8 @@ static void PrintCode (void){
 }
 #endif
 
+
+
 int yyexca[] ={
 -1, 1,
 	0, -1,
@@ -553,8 +556,11 @@ int yyexca[] ={
 	47, 33,
 	-2, 70,
 	};
+	
+	
 # define YYNPROD 105
 # define YYLAST 318
+
 int yyact[]={
 
     54,    52,   136,    53,    13,    55,    54,    52,    14,    53,
@@ -588,7 +594,9 @@ int yyact[]={
      0,     0,     0,     0,     0,     0,     0,     0,    57,    58,
     49,    50,    51,    56,     0,     0,    49,    50,    51,    56,
     32,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-     0,     0,    30,     0,    21,    31,     0,    34 };
+     0,     0,    30,     0,    21,    31,     0,    34 
+};
+     
 int yypact[]={
 
  -1000,  -258, -1000, -1000, -1000,  -234, -1000,    34,  -254, -1000,
@@ -682,7 +690,14 @@ int yydef[]={
     32,    19,    10,    28,     0,    -2,     0,     0,    26,     0,
     77,     0,     0,    78,    89,    88,    91,     0,    66,     8,
     15,    24,     0,    82,     0,     0,    17,    13,    32,    84,
-    90,    31,    26,    32,    23,    25 };
+    90,    31,    26,    32,    23,    25 
+};
+
+
+//
+// Token type.
+//
+
 
 
 typedef struct { 
@@ -691,6 +706,7 @@ typedef struct {
     int t_val; 
 
 } yytoktype;
+
 
 #ifndef YYDEBUG
 #	define YYDEBUG	0	/* don't allow debugging */
@@ -923,31 +939,37 @@ int yyparse (){
   
     /* top of value stack for $vars */
     
-    register YYSTYPE *yypvt;	
-	  
+    register YYSTYPE *yypvt;
+
     unsigned yymaxdepth = YYMAXDEPTH;
 
+
+
     /*
-	   ** Initialize externals - yyparse may be called more than once */
+     * Initialize externals - yyparse may be called more than once 
+     */
   
-    yyv = (YYSTYPE *) malloc (yymaxdepth*sizeof(YYSTYPE));
-	  yys = (int *) malloc (yymaxdepth*sizeof(int));
-	  
+    yyv = (YYSTYPE *) malloc ( yymaxdepth * sizeof(YYSTYPE) );
+    
+    yys = (int *) malloc ( yymaxdepth * sizeof(int) );
+
     if (!yyv || !yys)
-	  {
-		    yyerror ( "out of memory" );
-		    return (1);
-	  }
-  
-  
+    {
+        yyerror ( "Out of memory" );
+        return (1);
+    };
+
+
     yypv = &yyv[-1];
     yyps = &yys[-1];
-  
+
+
     yystate = 0;
     yytmp = 0;
     yynerrs = 0;
     yyerrflag = 0;
     yychar = -1;
+
 
     goto yystack;
     {
@@ -966,22 +988,25 @@ yynewstate:
 		yy_state = yystate;
 		goto yy_newstate;
 
+
 		/*
-		** get globals into registers.
-		** either we just started, or we just finished a reduction
-		*/
+		 ** get globals into registers.
+		 ** either we just started, or we just finished a reduction
+		 */
+
 	yystack:
 		yy_pv = yypv;
 		yy_ps = yyps;
 		yy_state = yystate;
 
 		/*
-		** top of for (;;) loop while no reductions done
-		*/
+		 ** top of for (;;) loop while no reductions done
+		 */
 	yy_stack:
 		/*
-		** put a state and value onto the stacks
-		*/
+		 ** put a state and value onto the stacks
+		 */
+
 #if YYDEBUG
 		/*
 		** if debugging, look up token value in list of value vs.
@@ -1010,6 +1035,7 @@ yynewstate:
 			}
 		}
 #endif /* YYDEBUG */
+
 		if ( ++yy_ps >= &yys[ yymaxdepth ] )	/* room on stack? */
 		{
 			/*
@@ -1300,15 +1326,15 @@ yydefault:
 		yyps = yy_ps;
 		yypv = yy_pv;
 	}
-  
-  
+
+
     /*
-	   ** code supplied by user is placed in this switch
-	   */
+     ** code supplied by user is placed in this switch
+     */
   
-    switch( yytmp )
-	  {
-		
+    switch ( yytmp )
+    {
+
         case 2:
         # line 179 "lua.stx"
         {
@@ -1316,20 +1342,24 @@ yydefault:
             nlocalvar=0;
         }
             break;
-        
-       case 3:
-       # line 179 "lua.stx"
-       {
+
+
+        case 3:
+        # line 179 "lua.stx"
+        {
             maincode=pc;
-       }
+        }
            break;
-        
-       case 6:
-# line 184 "lua.stx"
-{pc=basepc=code; nlocalvar=0;} break;
-case 7:
-# line 185 "lua.stx"
-{
+
+
+        case 6:
+        # line 184 "lua.stx"
+        {pc=basepc=code; nlocalvar=0;} break;
+
+
+        case 7:
+        # line 185 "lua.stx"
+        {
 	        if (lua_debug)
 		{
 		 align(Word);
@@ -1338,8 +1368,12 @@ case 7:
 		 code_word(yypvt[-4].vWord);
 		}
 	        lua_codeadjust (0);
-	       } break;
-case 8:
+	     }
+	         break;
+
+
+
+        case 8:
 # line 197 "lua.stx"
 { 
                 if (lua_debug) code_byte(RESET); 
@@ -1348,18 +1382,22 @@ case 8:
 	        s_bvalue(yypvt[-7].vWord) = calloc (pc-code, sizeof(Byte));
 	        memcpy (s_bvalue(yypvt[-7].vWord), code, (pc-code)*sizeof(Byte));
 	       } break;
-case 11:
-# line 210 "lua.stx"
-{
+
+
+         case 11:
+         # line 210 "lua.stx"
+         {
             ntemp = 0; 
             if (lua_debug)
             {
              align(Word); code_byte(SETLINE); code_word(lua_linenumber);
             }
-	   } break;
-case 15:
-# line 223 "lua.stx"
-{
+	     } break;
+
+
+         case 15:
+         # line 223 "lua.stx"
+         {
         {
 	 Byte *elseinit = yypvt[-2].pByte + sizeof(Word)+1;
 	 if (pc - elseinit == 0)		/* no else */
@@ -1377,11 +1415,17 @@ case 15:
 	 *((Word *)(yypvt[-4].pByte+1)) = elseinit - (yypvt[-4].pByte + sizeof(Word)+1);
 	}
        } break;
-case 16:
-# line 242 "lua.stx"
-{yyval.pByte = pc;} break;
-case 17:
-# line 244 "lua.stx"
+
+        case 16:
+        # line 242 "lua.stx"
+        {
+			yyval.pByte = pc;
+		}
+		    break;
+
+
+        case 17:
+        # line 244 "lua.stx"
 {
         *(yypvt[-3].pByte) = IFFJMP;
         *((Word *)(yypvt[-3].pByte+1)) = pc - (yypvt[-3].pByte + sizeof(Word)+1);
@@ -1747,12 +1791,17 @@ case 101:
 case 102:
 # line 525 "lua.stx"
 {ntemp = 0;} break;
-case 104:
-# line 528 "lua.stx"
-{lua_debug = yypvt[-0].vInt;} break;
-    
-    }
-    
-    goto yystack;		/* reset registers in driver code */
+
+        case 104:
+        # line 528 "lua.stx"
+        {
+			lua_debug = yypvt[-0].vInt;
+		} 
+		    break;
+    };
+
+
+    /* reset registers in driver code */
+    goto yystack;
 }
 

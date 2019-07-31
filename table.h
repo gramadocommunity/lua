@@ -1,9 +1,10 @@
 /*
-** table.c
-** Module to control static tables
-** TeCGraf - PUC-Rio
-** 11 May 93
-*/
+ ** table.c
+ ** Module to control static tables
+ ** TeCGraf - PUC-Rio
+ ** 11 May 93
+ */
+
 
 #ifndef table_h
 #define table_h
@@ -23,7 +24,8 @@ extern Word    lua_narray;
 extern char   *lua_file[];
 extern int     lua_nfile;
 
-#define lua_markstring(s)	(*((s)-1))
+
+#define lua_markstring(s) (*((s)-1))
 
 
 int   lua_findsymbol           (char *s);
@@ -37,3 +39,8 @@ char *lua_filename             (void);
 void  lua_nextvar              (void);
 
 #endif
+
+
+
+
+

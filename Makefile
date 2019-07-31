@@ -14,6 +14,7 @@ OBJS= hash.o inout.o lex_yy.o opcode.o table.o y_tab.o lua.o iolib.o mathlib.o s
 
 CFLAGS= -O2 
 
+#Target.
 T= lua
 
 all:	$T

@@ -1,13 +1,19 @@
 
+
+
 typedef union  
 {
- int   vInt;
- long  vLong;
- float vFloat;
- Word  vWord;
- Byte *pByte;
+    int vInt;
+    long vLong;
+    float vFloat;
+    Word vWord;
+    Byte *pByte;
+
 } YYSTYPE;
+
 extern YYSTYPE yylval;
+
+
 # define NIL 257
 # define IF 258
 # define THEN 259
@@ -33,3 +39,6 @@ extern YYSTYPE yylval;
 # define GE 279
 # define CONC 280
 # define UNARY 281
+
+
+

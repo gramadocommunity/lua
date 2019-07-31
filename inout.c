@@ -40,14 +40,18 @@ void lua_errorfunction (void (*fn) (char *s))
  usererror = fn;
 }
 
+
 /*
-** Function to get the next character from the input file
-*/
-static int fileinput (void)
-{
- int c = fgetc (fp);
- return (c == EOF ? 0 : c);
+ ** Function to get the next character from the input file
+ */
+
+static int fileinput (void){
+
+    int c = fgetc (fp);
+
+    return (c == EOF ? 0 : c);
 }
+
 
 /*
 ** Function to unget the next character from to input file
@@ -57,22 +61,27 @@ static void fileunput (int c)
  ungetc (c, fp);
 }
 
-/*
-** Function to get the next character from the input string
-*/
-static int stringinput (void)
-{
- st++;
- return (*(st-1));
-}
 
 /*
-** Function to unget the next character from to input string
-*/
+ ** Function to get the next character from the input string
+ */
+
+static int stringinput (void){
+
+    st++;
+    return ( *(st-1) );
+}
+
+
+/*
+ ** Function to unget the next character from to input string
+ */
+
 static void stringunput (int c)
 {
- st--;
+    st--;
 }
+
 
 /*
 ** Function to open a file to be input unit. 
@@ -89,16 +98,18 @@ int lua_openfile (char *fn)
  return 0;
 }
 
+
 /*
-** Function to close an opened file
-*/
-void lua_closefile (void)
-{
- if (fp != NULL)
- {
-  fclose (fp);
-  fp = NULL;
- }
+ ** Function to close an opened file
+ */
+
+void lua_closefile (void){
+
+    if (fp != NULL)
+    {
+        fclose (fp);
+        fp = NULL;
+    }
 }
 
 /*

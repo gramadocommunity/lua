@@ -38,14 +38,16 @@ static Object *top=stack+1, *base=stack+1;
 
 static char *lua_strconc (char *l, char *r)
 {
- char *s = calloc (strlen(l)+strlen(r)+2, sizeof(char));
- if (s == NULL)
- {
-  lua_error ("not enough memory");
-  return NULL;
- }
- *s++ = 0; 			/* create mark space */
- return strcat(strcpy(s,l),r);
+    char *s = calloc (strlen(l)+strlen(r)+2, sizeof(char));
+    
+    if (s == NULL)
+    {
+        lua_error ("not enough memory");
+        return NULL;
+    }
+    
+    *s++ = 0; 			/* create mark space */
+    return strcat(strcpy(s,l),r);
 }
 
 
@@ -55,15 +57,18 @@ static char *lua_strconc (char *l, char *r)
 */
 char *lua_strdup (char *l)
 {
- char *s = calloc (strlen(l)+2, sizeof(char));
- if (s == NULL)
- {
-  lua_error ("not enough memory");
-  return NULL;
- }
- *s++ = 0; 			/* create mark space */
- return strcpy(s,l);
+    char *s = calloc (strlen(l)+2, sizeof(char));
+    
+    if (s == NULL)
+    {
+        lua_error ("not enough memory");
+        return NULL;
+    }
+
+    *s++ = 0; 			/* create mark space */
+    return strcpy (s,l);
 }
+
 
 /*
 ** Convert, if possible, to a number tag.
@@ -141,7 +146,8 @@ static int lua_tostring (Object *obj)
 /*
  ********************************
  * lua_execute:
- **     Execute the given opcode. Return 0 in success or 1 on error. */
+ **     Execute the given opcode. Return 0 in success or 1 on error. 
+ */
 
 int lua_execute (Byte *pc){
 	
