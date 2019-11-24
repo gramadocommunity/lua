@@ -365,24 +365,25 @@ void io_execute (void)
  return;
 }
 
+
 /*
-** Remove a file.
-** On error put 0 on stack, otherwise put 1.
-*/
+ ** Remove a file.
+ ** On error put 0 on stack, otherwise put 1.
+ */
 void io_remove  (void)
 {
- lua_Object o = lua_getparam (1);
- if (o == NULL || !lua_isstring (o))
- {
-  lua_error ("incorrect argument to function 'execute`");
-  lua_pushnumber (0);
- }
- else
- {
-  if (remove(lua_getstring(o)) == 0)
-   lua_pushnumber (1);
-  else
-   lua_pushnumber (0);
+    lua_Object o = lua_getparam (1);
+
+    if (o == NULL || !lua_isstring (o))
+    {
+        lua_error ("incorrect argument to function 'execute`");
+        lua_pushnumber (0);
+    }else{
+
+        if ( remove(lua_getstring(o) ) == 0)
+            lua_pushnumber (1);
+        else
+            lua_pushnumber (0);
  }
  return;
 }

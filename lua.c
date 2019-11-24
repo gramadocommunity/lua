@@ -48,6 +48,8 @@ void main (int argc, char *argv[]){
 	
     int i;
 
+    printf ("Initializing lua for Gramado ...\n");
+
 	if (argc < 2){
 
         puts ("usage: lua filename [functionnames]");
@@ -66,6 +68,8 @@ void main (int argc, char *argv[]){
     {
         lua_call (argv[i],0);
     }
+
+    printf ("Done\n");
 }
 
 

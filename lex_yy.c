@@ -19,8 +19,14 @@
 # define YYOPTIM 1
 # define YYLMAX BUFSIZ
 
+
+//#bugbug
+//Como existem definições de 'input' na libc, então vamos
+//substituir a definição aqui.
+
 # define output(c) putc(c,stdout)
-# define input() (((yytchar=yysptr>yysbuf?U(*--yysptr):getc(stdin))==10?(yylineno++,yytchar):yytchar)==EOF?0:yytchar)
+//# define input() (((yytchar=yysptr>yysbuf?U(*--yysptr):getc(stdin))==10?(yylineno++,yytchar):yytchar)==EOF?0:yytchar)
+# define lua__input() (((yytchar=yysptr>yysbuf?U(*--yysptr):getc(stdin))==10?(yylineno++,yytchar):yytchar)==EOF?0:yytchar)
 # define unput(c) {yytchar= (c);if(yytchar=='\n')yylineno--;*yysptr++=yytchar;}
 
 # define yymore() (yymorfg=1)
@@ -52,16 +58,23 @@ extern struct yysvf yysvec[], *yybgin;
 #include "table.h"
 #include "y_tab.h"
 
+
+// #bugbug
+// Como existe uma definição de 'input' na libc, vamos tentar
+// substituir a definição aqui.
+
 #undef input
 #undef unput
 
-static Input input;
+//static Input input;
+static Input lex__input;
 static Unput unput;
 
 
 void lua_setinput (Input fn)
 {
-    input = fn;
+    //input = fn;
+    lex__input = fn;
 }
 
 
@@ -905,7 +918,8 @@ yylook (){
 				if(yyz->yystoff == yycrank)break;
 			}
 				
-			*yylastch++ = yych = input();
+			//*yylastch++ = yych = input();
+			*yylastch++ = yych = lua__input();
 			yyfirst=0;
 
 		tryagain:
@@ -1012,7 +1026,8 @@ yylook (){
 			yysptr=yysbuf;
 			return(0);
 			}
-		yyprevious = yytext[0] = input();
+		//yyprevious = yytext[0] = input();
+		yyprevious = yytext[0] = lua__input();
 		if (yyprevious>0)
 			output(yyprevious);
 		yylastch=yytext;
@@ -1046,8 +1061,10 @@ yyback (p, m)
 
 	/* the following are only used in the lex library */
 
-yyinput (){
-	return ( input() );
+yyinput ()
+{
+	//return ( input() );
+	return ( lua__input() );
 }
 
 
