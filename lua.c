@@ -45,31 +45,47 @@ static void execstr (void){
  */
 
 void main (int argc, char *argv[]){
-	
+
     int i;
 
-    printf ("Initializing lua for Gramado ...\n");
 
-	if (argc < 2){
+    printf ("lua: Initializing lua for Gramado ...\n");
 
+    if (argc < 2){
         puts ("usage: lua filename [functionnames]");
         return;
     }
 
+    gde_debug_print ("lua: register \n");
+    
     lua_register ("callfunc", callfunc);
     lua_register ("execstr", execstr);
     lua_register ("test", test);
+    
+    gde_debug_print ("lua: open \n");
+    
     iolib_open ();
     strlib_open ();
     mathlib_open ();
+    
+    gde_debug_print ("lua: do file \n");        
     lua_dofile (argv[1]);
 
+
+    printf ("argc=%d\n", argc);
+    
     for (i=2; i<argc; i++)
     {
+        gde_debug_print ("lua: call \n");        
+        //lua_call (argv[2],0);
         lua_call (argv[i],0);
     }
 
-    printf ("Done\n");
+    printf ("lua: Done\n");
+    
+    exit (0);
 }
+
+
 
 

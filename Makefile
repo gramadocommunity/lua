@@ -101,7 +101,6 @@ lua.o:
 all-c:
 
 	cp $(LIBCOBJ)/crt0.o   .
-	
 	cp $(LIBCOBJ)/stubs.o  .
 	cp $(LIBCOBJ)/ctype.o   .
 	cp $(LIBCOBJ)/stdio.o .

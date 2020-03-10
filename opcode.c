@@ -610,6 +610,7 @@ int lua_call (char *functionname, int nparam){
     top += 2;
     tag(top-nparam-1) = T_MARK;
     *(top-nparam-2) = func;
+    
     return (lua_execute (startcode));
 }
 
