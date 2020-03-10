@@ -39,13 +39,11 @@ CFLAGS = -m32 \
 
 
 
-# A libc fica no projeto garden
-# /home/nora/atacama/lib/libc03/
+LIBC    = ../../animal/lib/libc03/include/
+LIBCOBJ = ../../animal/lib/libc03/obj
 
-LIBC    = ../../atacama/lib/libc03/include/
-LIBCOBJ = ../../atacama/lib/libc03/obj
-API02   = ../../atacama/lib/api02/include/
-APIOBJ  = ../../atacama/lib/api02/obj
+API02   = ../../animal/lib/libgui/include/
+APIOBJ  = ../../animal/lib/libgui/obj
 
 
 
@@ -76,6 +74,7 @@ strtoul.o \
 fscanf.o \
 termios.o \
 ioctl.o \
+fcntl.o \
 stubs.o    
 
 
@@ -104,23 +103,20 @@ all-c:
 	cp $(LIBCOBJ)/crt0.o   .
 	
 	cp $(LIBCOBJ)/stubs.o  .
-	
 	cp $(LIBCOBJ)/ctype.o   .
 	cp $(LIBCOBJ)/stdio.o .
 	cp $(LIBCOBJ)/stdlib.o .
 	cp $(LIBCOBJ)/string.o .
 	cp $(LIBCOBJ)/time.o    .
 	cp $(LIBCOBJ)/unistd.o  .
-
 	cp $(LIBCOBJ)/math.o  .
 	cp $(LIBCOBJ)/fscanf.o  .
-
 	cp $(LIBCOBJ)/strtol.o  .
 	cp $(LIBCOBJ)/strtoul.o  .
-
 	cp $(LIBCOBJ)/termios.o  .
 	cp $(LIBCOBJ)/ioctl.o  .
-
+	cp $(LIBCOBJ)/fcntl.o  .
+	
 	cp $(APIOBJ)/api.o      .
 
 
@@ -129,11 +125,14 @@ jackpot-link:
 	ld -m elf_i386 -T link.ld -o LUA.BIN $(myObjects) -Map map.s
 
 finalize:
-	cp LUA.BIN  ../../atacama/bin 
+#	cp LUA.BIN  ../../animal/bin 
 
 clean:
 	-rm *.o
+#	-rm LUA.BIN 
+	
+clean2:
 	-rm LUA.BIN 
-	
-	
+
+
 	
