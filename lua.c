@@ -6,35 +6,36 @@
  *
  * History:
  *     1993 - PUC-Rio.
- *     2019 - Fred Nora.
+ *     2019 - Adapted by Fred Nora.
  */
 
 
 #include <stdio.h>
-
-
 #include "lua.h"
 #include "lualib.h"
 
 
-void test (void){
-	
+void test (void)
+{
     lua_pushobject ( lua_getparam(1) );
     lua_call ("c", 1);
 }
 
-
-static void callfunc (void){
-	
+static void callfunc (void)
+{
     lua_Object obj = lua_getparam (1);
-    if (lua_isstring(obj)) lua_call(lua_getstring(obj),0);
+
+    if (lua_isstring(obj)) 
+        lua_call( lua_getstring(obj), 0 );
 }
 
 
-static void execstr (void){
-	
+static void execstr (void)
+{
     lua_Object obj = lua_getparam (1);
-    if (lua_isstring(obj)) lua_dostring(lua_getstring(obj));
+
+    if (lua_isstring(obj)) 
+        lua_dostring(lua_getstring(obj));
 }
 
 
@@ -44,13 +45,13 @@ static void execstr (void){
  * 
  */
 
-void main (int argc, char *argv[]){
-	
-    int i;
+int main (int argc, char *argv[]){
 
-	if (argc < 2){
+    int i=0;
 
-        puts ("usage: lua filename [functionnames]");
+
+    if (argc < 2){
+        puts ("usage: lua filename [functionnames]\n");
         return;
     }
 
@@ -65,7 +66,9 @@ void main (int argc, char *argv[]){
     for (i=2; i<argc; i++)
     {
         lua_call (argv[i],0);
-    }
+    };
+
+    return 0;
 }
 
 

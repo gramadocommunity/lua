@@ -32,20 +32,23 @@ static Object *top=stack+1, *base=stack+1;
 
 
 /*
- ** Concatenate two given string, creating a mark space at the beginning.
+ ** Concatenate two given string, 
+ ** creating a mark space at the beginning.
  ** Return the new string pointer.
  */
 
 static char *lua_strconc (char *l, char *r)
 {
- char *s = calloc (strlen(l)+strlen(r)+2, sizeof(char));
- if (s == NULL)
- {
-  lua_error ("not enough memory");
-  return NULL;
- }
- *s++ = 0; 			/* create mark space */
- return strcat(strcpy(s,l),r);
+    char *s = calloc (strlen(l)+strlen(r)+2, sizeof(char));
+
+    if (s == NULL){
+        lua_error ("not enough memory");
+        return NULL;
+    }
+
+    *s++ = 0;  /* create mark space */
+
+    return strcat( strcpy(s,l), r );
 }
 
 
@@ -141,38 +144,50 @@ static int lua_tostring (Object *obj)
 /*
  ********************************
  * lua_execute:
- **     Execute the given opcode. Return 0 in success or 1 on error. */
+ **     Execute the given opcode. 
+ **     Return 0 in success or 1 on error. 
+ */
 
-int lua_execute (Byte *pc){
-	
-    while (1)
+int lua_execute (Byte *pc)
+{
+
+    while (1){
+
+    switch ((OpCode)*pc++){
+
+    case NOP: 
+        break;
+   
+    case PUSHNIL: 
+        tag(top++) = T_NIL; 
+        break;
+   
+    case PUSH0: tag(top) = T_NUMBER; nvalue(top++) = 0; break;
+    case PUSH1: tag(top) = T_NUMBER; nvalue(top++) = 1; break;
+    case PUSH2: tag(top) = T_NUMBER; nvalue(top++) = 2; break;
+
+    case PUSHBYTE: tag(top) = T_NUMBER; nvalue(top++) = *pc++; break;
+   
+    case PUSHWORD: 
+        tag(top) = T_NUMBER; 
+        nvalue(top++) = *((Word *)(pc)); 
+        pc += sizeof(Word);
+        break;
+   
+    case PUSHFLOAT:
+        tag(top) = T_NUMBER; 
+        nvalue(top++) = *((float *)(pc)); 
+        pc += sizeof(float);
+        break;
+    
+    case PUSHSTRING:
     {
-        switch ((OpCode)*pc++){
-				
-   case NOP: break;
-   
-   case PUSHNIL: tag(top++) = T_NIL; break;
-   
-   case PUSH0: tag(top) = T_NUMBER; nvalue(top++) = 0; break;
-   case PUSH1: tag(top) = T_NUMBER; nvalue(top++) = 1; break;
-   case PUSH2: tag(top) = T_NUMBER; nvalue(top++) = 2; break;
-
-   case PUSHBYTE: tag(top) = T_NUMBER; nvalue(top++) = *pc++; break;
-   
-   case PUSHWORD: 
-    tag(top) = T_NUMBER; nvalue(top++) = *((Word *)(pc)); pc += sizeof(Word);
-   break;
-   
-   case PUSHFLOAT:
-    tag(top) = T_NUMBER; nvalue(top++) = *((float *)(pc)); pc += sizeof(float);
-   break;
-   case PUSHSTRING:
-   {
-    int w = *((Word *)(pc));
-    pc += sizeof(Word);
-    tag(top) = T_STRING; svalue(top++) = lua_constant[w];
-   }
-   break;
+        int w = *((Word *)(pc));
+        pc += sizeof(Word);
+        tag(top) = T_STRING; 
+        svalue(top++) = lua_constant[w];
+    }
+        break;
    
    case PUSHLOCAL0: *top++ = *(base + 0); break;
    case PUSHLOCAL1: *top++ = *(base + 1); break;
@@ -187,23 +202,25 @@ int lua_execute (Byte *pc){
    
    case PUSHLOCAL: *top++ = *(base + (*pc++)); break;
    
-   case PUSHGLOBAL: 
-    *top++ = s_object(*((Word *)(pc))); pc += sizeof(Word);
-   break;
+    case PUSHGLOBAL: 
+        *top++ = s_object(*((Word *)(pc))); 
+        pc += sizeof(Word);
+        break;
    
-   case PUSHINDEXED:
-    --top;
-    if (tag(top-1) != T_ARRAY)
-    {
-     lua_reportbug ("indexed expression not a table");
-     return 1;
-    }
-    {
-     Object *h = lua_hashdefine (avalue(top-1), top);
-     if (h == NULL) return 1;
-     *(top-1) = *h;
-    }
-   break;
+    case PUSHINDEXED:
+        --top;
+        
+        if (tag(top-1) != T_ARRAY)
+        {
+            lua_reportbug ("indexed expression not a table");
+            return 1;
+        }
+        {
+            Object *h = lua_hashdefine (avalue(top-1), top);
+            if (h == NULL) return 1;
+            *(top-1) = *h;
+        }
+        break;
    
    case PUSHMARK: tag(top++) = T_MARK; break;
    
@@ -222,9 +239,10 @@ int lua_execute (Byte *pc){
     
    case STORELOCAL: *(base + (*pc++)) = *(--top); break;
    
-   case STOREGLOBAL:
-    s_object(*((Word *)(pc))) = *(--top); pc += sizeof(Word);
-   break;
+    case STOREGLOBAL:
+        s_object(*((Word *)(pc))) = *(--top); 
+        pc += sizeof(Word);
+        break;
 
    case STOREINDEXED0:
     if (tag(top-3) != T_ARRAY)
@@ -333,7 +351,7 @@ int lua_execute (Byte *pc){
     nvalue(top-1) = 1; 
    }
    break;
-   
+
    case LEOP:
    {
     Object *l = top-2;
@@ -350,51 +368,56 @@ int lua_execute (Byte *pc){
     nvalue(top-1) = 1; 
    }
    break;
-   
-   case ADDOP:
-   {
-    Object *l = top-2;
-    Object *r = top-1;
-    if (tonumber(r) || tonumber(l))
-     return 1;
-    nvalue(l) += nvalue(r);
-    --top;
-   }
-   break; 
-   
-   case SUBOP:
-   {
-    Object *l = top-2;
-    Object *r = top-1;
-    if (tonumber(r) || tonumber(l))
-     return 1;
-    nvalue(l) -= nvalue(r);
-    --top;
-   }
-   break; 
-   
-   case MULTOP:
-   {
-    Object *l = top-2;
-    Object *r = top-1;
-    if (tonumber(r) || tonumber(l))
-     return 1;
-    nvalue(l) *= nvalue(r);
-    --top;
-   }
-   break; 
-   
-   case DIVOP:
-   {
-    Object *l = top-2;
-    Object *r = top-1;
-    if (tonumber(r) || tonumber(l))
-     return 1;
-    nvalue(l) /= nvalue(r);
-    --top;
-   }
-   break; 
-   
+
+    // add
+    case ADDOP:
+    {
+        Object *l = top-2;
+        Object *r = top-1;
+        if (tonumber(r) || tonumber(l))
+            return 1;
+        nvalue(l) += nvalue(r);
+        --top;
+    }
+        break; 
+
+    // sub
+    case SUBOP:
+    {
+        Object *l = top-2;
+        Object *r = top-1;
+        if (tonumber(r) || tonumber(l))
+            return 1;
+        nvalue(l) -= nvalue(r);
+        --top;
+    }
+        break; 
+
+    // mul
+    case MULTOP:
+    {
+        Object *l = top-2;
+        Object *r = top-1;
+        if (tonumber(r) || tonumber(l))
+            return 1;
+        nvalue(l) *= nvalue(r);
+        --top;
+    }
+    break; 
+
+    //  div
+    case DIVOP:
+    {
+        Object *l = top-2;
+        Object *r = top-1;
+        if (tonumber(r) || tonumber(l))
+            return 1;
+        nvalue(l) /= nvalue(r);
+        --top;
+    }
+        break; 
+
+
    case CONCOP:
    {
     Object *l = top-2;
@@ -434,18 +457,23 @@ int lua_execute (Byte *pc){
    }
    break;
    
-   case JMP: pc += *((Word *)(pc)) + sizeof(Word); break;
+    case JMP: 
+        pc += *((Word *)(pc)) + sizeof(Word); 
+        break;
     
-   case UPJMP: pc -= *((Word *)(pc)) - sizeof(Word); break; 
-   
-   case IFFJMP:
-   {
-    int n = *((Word *)(pc));
-    pc += sizeof(Word);
-    top--;
-    if (tag(top) == T_NIL) pc += n;
-   }
-   break;
+    case UPJMP: 
+        pc -= *((Word *)(pc)) - sizeof(Word); 
+        break; 
+
+    case IFFJMP:
+    {
+        int n = *((Word *)(pc));
+        pc += sizeof(Word);
+        top--;
+        if (tag(top) == T_NIL) 
+            pc += n;
+    }
+        break;
 
    case IFFUPJMP:
    {
@@ -456,16 +484,19 @@ int lua_execute (Byte *pc){
    }
    break;
 
-   case POP: --top; break;
-   
-   case CALLFUNC:
-   {
-    Byte *newpc;
-    Object *b = top-1;
-    while (tag(b) != T_MARK) b--;
-    if (tag(b-1) == T_FUNCTION)
+    case POP: 
+        --top; 
+        break;
+
+    // call
+    case CALLFUNC:
     {
-     lua_debugline = 0;			/* always reset debug flag */
+        Byte *newpc;
+        Object *b = top-1;
+        while (tag(b) != T_MARK) { b--; }
+        if (tag(b-1) == T_FUNCTION)
+        {
+            lua_debugline = 0;  /* always reset debug flag */
      newpc = bvalue(b-1);
      bvalue(b-1) = pc;		        /* store return code */
      nvalue(b) = (base-stack);		/* store base value */
@@ -506,26 +537,28 @@ int lua_execute (Byte *pc){
     }
    }
    break;
-   
-   case RETCODE:
-   {
-    int i;
-    int shift = *pc++;
-    int nretval = top - base - shift;
-    top = base - 2;
-    pc = bvalue(base-2);
-    base = stack + (int) nvalue(base-1);
-    for (i=0; i<nretval; i++)
+
+    case RETCODE:
     {
-     *top = *(top+shift+2);
-     ++top;
+        int i;
+        int shift = *pc++;
+        int nretval = top - base - shift;
+        top = base - 2;
+        pc = bvalue(base-2);
+        base = stack + (int) nvalue(base-1);
+        for (i=0; i<nretval; i++)
+        {
+            *top = *(top+shift+2);
+            ++top;
+        }
     }
-   }
-   break;
-   
-   case HALT:
-   return 0;		/* success */
-   
+        break;
+
+
+    case HALT:
+        return 0;		/* success */
+
+
    case SETFUNCTION:
    {
     int file, func;
@@ -537,33 +570,37 @@ int lua_execute (Byte *pc){
      return 1;
    }
    break;
+
+
+    case SETLINE:
+        lua_debugline = *((Word *)(pc));
+        pc += sizeof(Word);
+        break;
+
+
+    case RESET:
+        lua_popfunction();
+        break;
    
-   case SETLINE:
-    lua_debugline = *((Word *)(pc));
-    pc += sizeof(Word);
-   break;
-   
-   case RESET:
-    lua_popfunction ();
-   break;
-   
-   default:
-    lua_error ("internal error - opcode didn't match");
-   return 1;
-  }
- }
+    default:
+        lua_error ("internal error - opcode didn't match");
+        return 1;
+    }
+    }
 }
 
 
 /*
 ** Mark all strings and arrays used by any object stored at stack.
 */
+
 void lua_markstack (void)
 {
- Object *o;
- for (o = top-1; o >= stack; o--)
-  lua_markobject (o);
+    Object *o;
+    for (o = top-1; o >= stack; o--)
+        lua_markobject (o);
 }
+
 
 /*
 ** Open file, generate opcode and execute global statement. Return 0 on
@@ -582,15 +619,21 @@ int lua_dofile (char *filename)
  ** Generate opcode stored on string and execute global statement. Return 0 on
  ** success or 1 on error. */
 
-int lua_dostring (char *string){
-	
-    if (lua_openstring (string)) return 1;
-    if (lua_parse ()) return 1;
+int lua_dostring (char *string)
+{
+    if (lua_openstring (string)) 
+        return 1;
+
+    if (lua_parse ()) 
+        return 1;
+
     return 0;
 }
 
+
 /*
- ** Execute the given function. Return 0 on success or 1 on error. */
+ ** Execute the given function. Return 0 on success or 1 on error. 
+ */
 
 int lua_call (char *functionname, int nparam){
 	
@@ -862,8 +905,8 @@ int lua_storeindexed (lua_Object object, float index)
  ***********************
  ** Given an object handle, return if it is nil. */
 
-int lua_isnil (Object *object){
-	
+int lua_isnil (Object *object)
+{
     return (object != NULL && tag(object) == T_NIL);
 }
 
@@ -871,8 +914,8 @@ int lua_isnil (Object *object){
 /*
  ** Given an object handle, return if it is a number one.
  */
-int lua_isnumber (Object *object){
-	
+int lua_isnumber (Object *object)
+{
     return (object != NULL && tag(object) == T_NUMBER);
 }
 
@@ -882,7 +925,7 @@ int lua_isnumber (Object *object){
 */
 int lua_isstring (Object *object)
 {
- return (object != NULL && tag(object) == T_STRING);
+    return (object != NULL && tag(object) == T_STRING);
 }
 
 /*
@@ -890,7 +933,7 @@ int lua_isstring (Object *object)
 */
 int lua_istable (Object *object)
 {
- return (object != NULL && tag(object) == T_ARRAY);
+    return (object != NULL && tag(object) == T_ARRAY);
 }
 
 /*
@@ -898,7 +941,7 @@ int lua_istable (Object *object)
 */
 int lua_iscfunction (Object *object)
 {
- return (object != NULL && tag(object) == T_CFUNCTION);
+    return (object != NULL && tag(object) == T_CFUNCTION);
 }
 
 /*
@@ -906,7 +949,7 @@ int lua_iscfunction (Object *object)
 */
 int lua_isuserdata (Object *object)
 {
- return (object != NULL && tag(object) == T_USERDATA);
+    return (object != NULL && tag(object) == T_USERDATA);
 }
 
 /*
@@ -931,22 +974,23 @@ void lua_obj2number (void)
 /*
  ************************
  * lua_print:
- **     Internal function: print object values */
+ **     Internal function: print object values 
+ */
 
-void lua_print (void){
-	
+void lua_print (void)
+{
     int i=1;
     void *obj;
-    
-	while ((obj=lua_getparam (i++)) != NULL)
+
+    while ((obj=lua_getparam (i++)) != NULL)
     {
-        if (lua_isnumber(obj))    printf("%g\n",lua_getnumber (obj));
+        if (lua_isnumber(obj))         printf("%g\n",lua_getnumber (obj));
         else if (lua_isstring(obj))    printf("%s\n",lua_getstring (obj));
         else if (lua_iscfunction(obj)) printf("cfunction: %p\n",lua_getcfunction (obj));
         else if (lua_isuserdata(obj))  printf("userdata: %p\n",lua_getuserdata (obj));
         else if (lua_istable(obj))     printf("table: %p\n",obj);
         else if (lua_isnil(obj))       printf("nil\n");
-        else printf("invalid value to print\n");
-    }
+        else                           printf("invalid value to print\n");
+    };
 }
 
