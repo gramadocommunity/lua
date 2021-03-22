@@ -10,7 +10,19 @@
 #
 
 
-OBJS= hash.o inout.o lex_yy.o opcode.o table.o y_tab.o lua.o iolib.o mathlib.o strlib.o
+OBJS = hash.o\
+inout.o\
+lex_yy.o\
+opcode.o\
+table.o\
+y_tab.o\
+lua.o\
+iolib.o\
+mathlib.o\
+strlib.o     
+
+
+
 
 CFLAGS= -O2 
 
@@ -21,7 +33,7 @@ all:	$T
 $T:	$(OBJS)
 	$(CC) -o $@ $(OBJS) -lm
 
-A=--------------------------------------------------------------------------
+A=-----------------------------------------------------
 test:	$T
 	@echo "$A"
 	./$T sort.lua main
@@ -35,7 +47,11 @@ test:	$T
 	./$T test.lua retorno_multiplo norma
 
 clean:
+	rm *.o
+
+clean-all:
 	rm -f $T $(OBJS) core core.*
 
 diff:
 	diff . fixed | grep -v ^Only
+

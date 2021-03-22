@@ -11,11 +11,16 @@
 #include <string.h>
 #include <stdio.h>
 #include <ctype.h>
+
 #ifdef __GNUC__
 #include "floatingpoint.h"
 #endif
 
+
 #include "lua.h"
+
+
+
 
 //static FILE *in=stdin, *out=stdout;
 
@@ -72,6 +77,7 @@ static void io_readfrom (void)
 **			status = 1 -> success
 **			status = 0 -> error
 */
+
 static void io_writeto (void)
 {
  lua_Object o = lua_getparam (1);
@@ -123,25 +129,31 @@ static void io_writeto (void)
 **	Estes especificadores podem vir seguidos de numero que representa
 **	o numero de campos a serem lidos.
 */
+
 static void io_read (void)
 {
- lua_Object o = lua_getparam (1);
- if (o == NULL)			/* free format */
- {
-  int c;
-  char s[256];
-  while (isspace(c=fgetc(stdin)))
-   ;
-  if (c == '\"')
-  {
+
+    int ignored_return_value = 0;
+
+
+    lua_Object o = lua_getparam (1);
+
+    if (o == NULL)			/* free format */
+    {
+        int c;
+        char s[256];
+        while (isspace(c=fgetc(stdin)))
+        ;
+        if (c == '\"')
+        {
    if (fscanf (stdin, "%[^\"]\"", s) != 1)
    {
     lua_pushnil ();
     return;
    }
-  }
-  else if (c == '\'')
-  {
+        }
+        else if (c == '\'')
+        {
    if (fscanf (stdin, "%[^\']\'", s) != 1)
    {
     lua_pushnil ();
@@ -183,7 +195,7 @@ static void io_read (void)
    char f[80];
    char s[256];
    sprintf (f, "%%%ds", m);
-   fscanf (stdin, f, s);
+   ignored_return_value = fscanf (stdin, f, s);
    switch (tolower(t))
    {
     case 'i':
@@ -212,21 +224,21 @@ static void io_read (void)
     case 'i':
     {
      long int l;
-     fscanf (stdin, "%ld", &l);
+     ignored_return_value = fscanf (stdin, "%ld", &l);
      lua_pushnumber(l);
     }
     break;
     case 'f': case 'g': case 'e':
     {
      float f;
-     fscanf (stdin, "%f", &f);
+     ignored_return_value = fscanf (stdin, "%f", &f);
      lua_pushnumber(f);
     }
     break;
     default: 
     {
      char s[256];
-     fscanf (stdin, "%s", s);
+     ignored_return_value = fscanf (stdin, "%s", s);
      lua_pushstring(s);
     }
     break;
@@ -262,6 +274,7 @@ static void io_read (void)
 **			inteiros -> numero minimo de digitos
 **			string -> nao se aplica
 */
+
 static char *buildformat (char *e, lua_Object o)
 {
  static char buffer[512];
@@ -315,6 +328,7 @@ static char *buildformat (char *e, lua_Object o)
  }
  return string;
 }
+
 static void io_write (void)
 {
  lua_Object o1 = lua_getparam (1);
@@ -345,25 +359,29 @@ static void io_write (void)
  }
 }
 
+
 /*
-** Execute a executable program using "sustem".
-** On error put 0 on stack, otherwise put 1.
-*/
+ ** Execute a executable program using "sustem".
+ ** On error put 0 on stack, otherwise put 1.
+ */
 void io_execute (void)
 {
- lua_Object o = lua_getparam (1);
- if (o == NULL || !lua_isstring (o))
- {
-  lua_error ("incorrect argument to function 'execute`");
-  lua_pushnumber (0);
- }
- else
- {
-  system(lua_getstring(o));
-  lua_pushnumber (1);
- }
- return;
+    int ignored_return_value = 0;
+    
+    lua_Object o = lua_getparam (1);
+
+    if (o == NULL || !lua_isstring (o))
+    {
+        lua_error ("incorrect argument to function 'execute`");
+        lua_pushnumber (0);
+    }else{
+        ignored_return_value = system(lua_getstring(o));
+        lua_pushnumber (1);
+    };
+    
+    return;
 }
+
 
 /*
 ** Remove a file.

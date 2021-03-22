@@ -322,8 +322,8 @@ void yyerror (char *s){
 }
 
 
-int yywrap (void){
-  
+int yywrap (void)
+{
     return 1;
 }
 

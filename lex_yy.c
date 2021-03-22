@@ -10,6 +10,11 @@
 
 
 
+// #test
+#include "xxx.h"
+
+
+
 # define U(x) x
 # define NLSTATE yyprevious=YYNEWLINE
 # define BEGIN yybgin = yysvec + 1 +
@@ -35,12 +40,16 @@ int yytchar;
 //FILE *yyin = {stdin}, *yyout = {stdout};
 
 extern int yylineno;
+
 struct yysvf { 
-	struct yywork *yystoff;
-	struct yysvf *yyother;
-	int *yystops;};
+    
+    struct yywork  *yystoff;
+    struct yysvf   *yyother;
+    int *yystops; 
+};
 struct yysvf *yyestate;
 extern struct yysvf yysvec[], *yybgin;
+
 
 #include "opcode.h"
 #include "hash.h"
@@ -48,11 +57,12 @@ extern struct yysvf yysvec[], *yybgin;
 #include "table.h"
 #include "y_tab.h"
 
+
 #undef input
 #undef unput
-
 static Input input;
 static Unput unput;
+
 
 
 void lua_setinput (Input fn)
@@ -60,12 +70,10 @@ void lua_setinput (Input fn)
     input = fn;
 }
 
-
 void lua_setunput (Unput fn)
 {
     unput = fn;
 }
-
 
 char *lua_lasttext (void)
 {
@@ -75,20 +83,26 @@ char *lua_lasttext (void)
 
 # define YYNEWLINE 10
 
-yylex (){
-	
+int yylex(void)
+{
     int nstr; 
-	extern int yyprevious;
-	
-    while((nstr = yylook()) >= 0)
-    yyfussy: switch(nstr){
+    extern int yyprevious;
+
+
+    while ( (nstr = yylook()) >= 0 )
+    {
+
+    yyfussy: 
     
-		case 0:
-            if(yywrap()) return(0); 
-			break;
-        
-		case 1:
-				;
+    switch (nstr){
+    
+        case 0:
+            if (yywrap()) 
+                return(0); 
+            break;
+
+        case 1:
+            ;
             break;
         
 		case 2:
@@ -156,38 +170,38 @@ yylex (){
 		}
             break;
 
-		case 16:
-		    return END;
+        case 16:
+            return END;
             break;
 
-		case 17:
-		    return RETURN;
+        case 17:
+            return RETURN;
             break;
 
-		case 18:
-		    return LOCAL;
+        case 18:
+            return LOCAL;
             break;
 
-		case 19:
-		    return NIL;
+        case 19:
+            return NIL;
             break;
 
-		case 20:
-		    return AND;
+        case 20:
+            return AND;
             break;
 
-		case 21:
-		    return OR;
+        case 21:
+            return OR;
             break;
 
-		case 22:
-		    return NOT;
+        case 22:
+            return NOT;
             break;
         
-		case 23:
-		    return NE;
+        case 23:
+            return NE;
             break;
-			
+
         case 24:
 			return LE;
             break;
@@ -208,14 +222,13 @@ yylex (){
 		}
             break;
 
-		case 29:
-		case 30:
-        case 31:
-        case 32:
+
+        case 29:  
+        case 30:  case 31:  case 32:
         {
-		    yylval.vFloat = atof(yytext);
-			return NUMBER;
-		}
+            yylval.vFloat = atof(yytext);
+            return NUMBER;
+        }
             break;
 
 		case 33:
@@ -225,8 +238,9 @@ yylex (){
 		}
             break;
 
-		case 34:
-		    return  *yytext;
+
+        case 34:
+            return  *yytext;
             break;
 
 		case -1:
@@ -234,10 +248,13 @@ yylex (){
 
 		default:
             fprintf(stdout,"bad switch yylook %d",nstr);
-    } 
-	
-	return (0); 
+    }
+    
+    };
+
+    return 0; 
 }
+
 
 
 /* end of yylex */
@@ -834,8 +851,10 @@ extern struct yysvf *yyestate;
 
 int yyprevious = YYNEWLINE;
 
-yylook (){
-	
+
+int yylook(void)
+{
+
 	register struct yysvf *yystate, **lsp;
 	register struct yywork *yyt;
 	struct yysvf *yyz;
@@ -854,17 +873,24 @@ yylook (){
 	if (!yymorfg)
 		yylastch = yytext;
 	else {
-		yymorfg=0;
-		yylastch = yytext+yyleng;
-		}
-	for(;;){
-		lsp = yylstate;
-		yyestate = yystate = yybgin;
-		if (yyprevious==YYNEWLINE) yystate++;
-		for (;;){
+        yymorfg=0;
+        yylastch = yytext+yyleng;
+    }
+
+    for (;;){
+
+        lsp = yylstate;
+        yyestate = yystate = yybgin;
+        
+        if (yyprevious==YYNEWLINE) 
+            yystate++;
+
+        for (;;){
+
 # ifdef LEXDEBUG
 			if(debug)fprintf(stdout,"state %d\n",yystate-yysvec-1);
 # endif
+
 			yyt = yystate->yystoff;
 			if(yyt == yycrank && !yyfirst){  /* may not be any transitions */
 				yyz = yystate->yyother;
@@ -983,29 +1009,36 @@ yylook (){
 		if(debug)putchar('\n');
 # endif
 		}
-	}
+    }
 
 
-yyback (p, m)
-    int *p;
+int yyback (int *p, int m)
 {
-    if (p==0) return(0);
+
+    if (p==0) 
+        return(0);
+
     while (*p)
-	{
-	    if (*p++ == m)
-		    return(1);
-	}
-    
-	return (0);
+    {
+        if (*p++ == m)
+            return (1);
+    };
+
+    return (0);
 }
 
 
-	/* the following are only used in the lex library */
 
-yyinput (){
-	return(input());
+/* the following are only used in the lex library */
+
+int yyinput(void)
+{
+    return ( input() );
 }
 
+
+
+void
 yyoutput(c)
     int c; 
 {
@@ -1013,6 +1046,7 @@ yyoutput(c)
 }
 
 
+void
 yyunput(c)
    int c; 
 {
